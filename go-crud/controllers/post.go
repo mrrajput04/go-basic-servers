@@ -48,3 +48,24 @@ func FindPost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"Data": post})
 }
+
+func UpdatePost(c *gin.Context) {
+	var post models.Post
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "post not found"})
+		return
+	}
+
+	var input UpdateExistingPost
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	updatePost := models.Post{Title: input.Title, Content: input.Content}
+
+	models.DB.Model(&post).Updates(updatePost)
+	c.JSON(http.StatusOK, gin.H{"data": post})
+
+}
