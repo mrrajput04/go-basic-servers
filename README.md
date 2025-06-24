@@ -1,42 +1,48 @@
-# Go Basic Server App
+# go-basic-servers
 
-This is a simple Go-based web server application that serves static files and handles basic HTTP requests.
+**starting with go backend servers**
 
-## Features
+## Overview
 
-- Serves static HTML files from the `static/` directory.
-- Handles a `/hello` endpoint that responds with "Hello, World!".
-- Handles a `/form` endpoint to process form submissions.
+This repository contains basic backend server implementations using Go. The goal is to provide a starting point for learning and experimenting with Go server development.
 
-## Project Structure
+## Directory Structure
 
-## Endpoints
+- `basic-server-app/` – Contains the main Go application for the basic server.
 
-### `/`
+## Getting Started
 
-Serves static files from the `static/` directory. For example:
+### Prerequisites
 
-- `/` serves `index.html`.
-- `/hello.html` serves `hello.html`.
+- Go (latest version recommended). Download from: https://golang.org/dl/
 
-### `/hello`
+### Installation
 
-Responds with a simple "Hello, World!" message.
+1. Clone this repository:
+   ```sh
+   git clone https://github.com/mrrajput04/go-basic-servers.git
+   cd go-basic-servers
+   ```
 
-### `/form`
+2. Navigate to the server app directory:
+   ```sh
+   cd basic-server-app
+   ```
 
-Handles form submissions. Accepts `POST` requests with the following fields:
-
-- `name`
-- `address`
-
-Responds with the submitted data.
-
-## How to Run
-
-1. Make sure you have Go installed (version 1.24.2 or later).
-2. Navigate to the `basic-server-app` directory.
 3. Run the server:
    ```sh
    go run main.go
    ```
+
+## Features
+
+- Minimal Go server setup, ideal for beginners.
+- Easily extendable for new features or endpoints.
+
+## Contributing
+
+Feel free to fork the repository, make changes, and submit pull requests.
+
+## License
+
+This project currently does not have an official license.
