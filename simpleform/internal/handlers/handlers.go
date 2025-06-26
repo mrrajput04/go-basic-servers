@@ -168,3 +168,50 @@ func ReadOneUser(c *fiber.Ctx) error {
 	})
 
 }
+
+// DeleteUser handles the deletion of a user from the database by their ID
+func DeleteUser(c *fiber.Ctx) error {
+	// Get the user ID from the URL parameters
+	id := c.Params("id")
+
+	// Convert the user ID from a hex string to an ObjectID
+	userId, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   true,
+			"message": "Invalid user ID",
+		})
+	}
+
+	// Get the MongoDB database instance from the context
+	db := c.Locals("db").(*mongo.Database)
+
+	// Get the user collection from the database
+	collection := db.Collection(os.Getenv("USER_COLLECTION"))
+
+	// Create a filter to find the user by ID
+	filter := bson.M{"_id": userId}
+
+	// Execute the delete operation
+	res, err := collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		// Return an internal server error if the delete operation fails
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Error deleting user: " + err.Error(),
+		})
+	}
+	// Check if the user was found and deleted
+	if res.DeletedCount == 0 {
+		// Return a not found error if no user was deleted
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"message": "Error deleting user: " + err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "User deleted successfully",
+	})
+}

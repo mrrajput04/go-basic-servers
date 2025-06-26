@@ -11,4 +11,5 @@ func Route(app *fiber.App) {
 	route.Post("/", handlers.AddUser)
 	route.Get("/all", handlers.ReadUsers)
 	route.Get("/:id", handlers.ReadOneUser)
+	route.Delete("/:id", handlers.DeleteUser)
 }
