@@ -127,3 +127,44 @@ func ReadUsers(c *fiber.Ctx) error {
 	})
 
 }
+
+func ReadOneUser(c *fiber.Ctx) error {
+	// Create a context with a timeout of 7 seconds to ensure the operation does not hang indefinitely
+	ctx, cancel := context.WithTimeout(context.TODO(), 7*time.Second)
+	defer cancel() // Ensure the context is cancelled to free resources
+
+	// Get the user ID from the URL parameters
+	id := c.Params("id")
+
+	// Convert the user ID from a hex string to an ObjectID
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		// Return a bad request error if the ID is not a valid ObjectID
+		c.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": "error validating id, try again " + err.Error(),
+		})
+	}
+
+	// Declare a variable to hold the user document
+	var user models.User
+	// Get the MongoDB database instance from the context
+	db := c.Locals("db").(*mongo.Database)
+
+	// Find the user document by its ID and decode it into the user variable
+	if err := db.Collection(os.Getenv("USER_COLLECTION")).FindOne(ctx, bson.M{"_id": userId}).Decode(&user); err != nil {
+		// Return a bad request error if the user is not found or decoding fails
+		return c.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": "error getting user, try again" + err.Error(),
+		})
+	}
+
+	// Return a success response with the user document
+	return c.Status(200).JSON(fiber.Map{
+		"status":  "success",
+		"message": "scuccessful!",
+		"data":    user,
+	})
+
+}
