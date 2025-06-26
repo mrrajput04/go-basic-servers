@@ -166,7 +166,107 @@ func ReadOneUser(c *fiber.Ctx) error {
 		"message": "scuccessful!",
 		"data":    user,
 	})
+}
 
+func UpdateUser(c *fiber.Ctx) error {
+	// Get the user ID from the URL parameters
+	id := c.Params("id")
+
+	// Convert the user ID from a hex string to an ObjectID
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		// Return a bad request error if the ID is not a valid ObjectID
+		return c.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Error validating ID, try again " + err.Error(),
+		})
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		// Return a bad request error if form data parsing fails
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   true,
+			"message": "Error parsing form data: " + err.Error(),
+		})
+	}
+
+	// Create a map to hold the update data
+	updateData := bson.M{}
+
+	// Process the uploaded avatar files
+	files := form.File["avatar"]
+	var avatarURL string
+
+	for _, fileHead := range files {
+		// Open the uploaded file
+		file, err := fileHead.Open()
+		if err != nil {
+			// Return an internal server error if file opening fails
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   true,
+				"message": "Failed to open image file: " + err.Error(),
+			})
+		}
+		defer file.Close()
+
+		// Upload the file and get the URL
+		avatarURL, err = utils.UTC(file)
+		if err != nil {
+			// Return an internal server error if file upload fails
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   true,
+				"message": err.Error(),
+			})
+		}
+		// Add the avatar URL to the update data
+		updateData["avatar"] = avatarURL
+	}
+
+	// Get the email and city from the form data and add to update data if not empty
+	email := c.FormValue("email")
+	if email != "" {
+		updateData["email"] = email
+	}
+
+	city := c.FormValue("city")
+	if email != "" {
+		updateData["city"] = city
+	}
+
+	// Add the current time to the update data
+	updateData["updated_at"] = time.Now()
+
+	// Get the MongoDB database instance from the context
+	db := c.Locals("db").(*mongo.Database)
+	collection := db.Collection(os.Getenv("USER_COLLECTION"))
+	filter := bson.M{"_id": userId}      // Create a filter to find the user by ID
+	update := bson.M{"$set": updateData} // Create an update document with the update data
+
+	// Execute the update operation
+	res, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		// Return an internal server error if the update operation fails
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Error updating user: " + err.Error(),
+		})
+	}
+
+	// Check if the user was found and updated
+	if res.MatchedCount == 0 {
+		// Return a not found error if no user was matched
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"message": "User not found",
+		})
+	}
+
+	// Return a success response if the user was updated successfully
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"error":   false,
+		"message": "User updated successfully",
+	})
 }
 
 // DeleteUser handles the deletion of a user from the database by their ID
@@ -211,7 +311,7 @@ func DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
+		"error":   false,
 		"message": "User deleted successfully",
 	})
 }
