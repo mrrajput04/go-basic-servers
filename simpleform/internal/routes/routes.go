@@ -9,4 +9,5 @@ import (
 func Route(app *fiber.App) {
 	route := app.Group("/api/v1/user")
 	route.Post("/", handlers.AddUser)
+	route.Get("/", handlers.ReadUsers)
 }
