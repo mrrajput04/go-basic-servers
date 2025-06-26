@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"os"
 	"simpleform/internal/models"
 	"simpleform/internal/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -82,6 +84,46 @@ func AddUser(c *fiber.Ctx) error {
 		"error":   false,
 		"message": "welcome have a look around",
 		"user":    res.InsertedID,
+	})
+
+}
+
+// ReadUsers handles the retrieval of all users from the database
+func ReadUsers(c *fiber.Ctx) error {
+	// Create a context with a timeout of 7 seconds to ensure the operation does not hang indefinitely
+	ctx, cancel := context.WithTimeout(context.TODO(), 7*time.Second)
+	defer cancel() // Ensure the context is cancelled to free resources
+
+	// Get the MongoDB database instance from the context
+	db := c.Locals("db").(*mongo.Database)
+
+	// Perform a find operation on the user collection to retrieve all user documents
+	row, err := db.Collection(os.Getenv("USER_COLLECTION")).Find(ctx, bson.M{})
+	if err != nil {
+		// Return a bad request error if the find operation fails
+		return c.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Error finding the user. try again" + err.Error(),
+		})
+	}
+
+	// Declare a slice to hold the user documents
+	var users []bson.M
+
+	// Decode all the user documents into the users slice
+	if err := row.All(ctx, &users); err != nil {
+		// Return a bad request error if decoding the documents fails
+		return c.Status(400).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Error parsing the user" + err.Error(),
+		})
+	}
+
+	// Return a success response with the list of all users
+	return c.Status(200).JSON(fiber.Map{
+		"status":  "success",
+		"message": "ALL Users",
+		"Data":    users,
 	})
 
 }
