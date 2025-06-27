@@ -4,16 +4,36 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func main() {
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	db.AutoMigrate(&Book{})
+
+	handler := newHandler(db)
+
 	r := gin.New()
 
-	r.GET("/books", listBooksHandler)
-	r.POST("/books", createBookHandler)
-	r.DELETE("/books/:id", deleteBookHandler)
+	r.GET("/books", handler.listBooksHandler)
+	r.POST("/books", handler.createBookHandler)
+	r.DELETE("/books/:id", handler.deleteBookHandler)
 
 	r.Run()
+}
+
+type Handler struct {
+	db *gorm.DB
+}
+
+func newHandler(db *gorm.DB) *Handler {
+	return &Handler{db}
 }
 
 type Book struct {
@@ -22,17 +42,19 @@ type Book struct {
 	Author string `json:"author"`
 }
 
-var books = []Book{
-	{ID: "1", Title: "Harry Potter", Author: "J. K. Rowling"},
-	{ID: "2", Title: "The Lord of the Rings", Author: "J. R. R. Tolkien"},
-	{ID: "3", Title: "The Wizard of Oz", Author: "L. Frank Baum"},
+func (h *Handler) listBooksHandler(c *gin.Context) {
+	var books []Book
+
+	if result := h.db.Find(&books); result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": result.Error.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, &books)
 }
 
-func listBooksHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, books)
-}
-
-func createBookHandler(c *gin.Context) {
+func (h *Handler) createBookHandler(c *gin.Context) {
 	var book Book
 
 	if err := c.ShouldBindJSON(&book); err != nil {
@@ -42,19 +64,24 @@ func createBookHandler(c *gin.Context) {
 		return
 	}
 
-	books = append(books, book)
+	if result := h.db.Create(&book); result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": result.Error.Error(),
+		})
+		return
+	}
 
-	c.JSON(http.StatusCreated, book)
+	c.JSON(http.StatusCreated, &book)
 }
 
-func deleteBookHandler(c *gin.Context) {
+func (h *Handler) deleteBookHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	for i, a := range books {
-		if a.ID == id {
-			books = append(books[:i], books[i+1:]...)
-			break
-		}
+	if result := h.db.Delete(&Book{}, id); result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": result.Error.Error(),
+		})
+		return
 	}
 
 	c.Status(http.StatusNoContent)
