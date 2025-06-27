@@ -6,10 +6,10 @@ POST  http://localhost:8080/books
 Content-Type: application/json
 
 {
-	"id":"4",
+	"id":"3",
 	"title":"title",
 	"author":"author"
 }
 
 ### delete a book
-DELETE  http://localhost:8080/books/1
+DELETE  http://localhost:8080/books/4
