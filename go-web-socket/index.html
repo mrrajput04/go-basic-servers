@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Test</title>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</head>
+<style>
+	.text-area {
+		text-align: center;
+	}
+</style>
+
+<body>
+
+	<script>
+		//initially undefined; the variable holds the WebSocket connection object.
+		var socket;
+
+
+		function update(msg) {
+			$('#messageArea').html(msg)
+		}
+
+		function connectWS() {
+			var host = "ws://localhost:4321/length"
+
+			//creates a new WebSocket connection to the specified host
+			socket = new WebSocket(host);
+
+			//the event listener triggers when the connection opened and displays message
+			socket.onopen = function () {
+				update("Websocket connected")
+			}
+
+			//the event listener is triggered when a message is received from a server
+			socket.onmessage = function (message) {
+
+				//the event trigger is triggered when a message is received from the server
+				//and calls the `update` function to display the character count from the server
+				update('Websocket counted ' + message.data + ' characters in your message')
+			}
+			socket.onclose = function () {
+				update('Websocket closed')
+			}
+		}
+
+		function send() {
+			socket.send($('#message').val());
+		}
+		function closeSocket() {
+			socket.close();
+		}
+
+		//this initiates the connection and processes as soon as the script loads.
+		connectWS();
+	</script>
+
+	<div class="text-area">
+		<h2>Message:</h2>
+		<textarea id="message" style="width:50%;height:300px;font-size:20px;"></textarea>
+		<div>
+
+			<!-- submit button that triggers the send function; sending the message to the server -->
+			<input type="submit" value="Send" onclick="send()" />
+
+			<!-- Closes the WebSocket connection -->
+			<input type="button" onclick="closeSocket();" value="Close">
+		</div>
+	</div>
+
+	<div id="messageArea"></div>
+
+</body>
+
+</html>
