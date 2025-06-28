@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -21,11 +25,34 @@ func main() {
 
 	r := gin.New()
 
-	r.GET("/books", handler.listBooksHandler)
-	r.POST("/books", handler.createBookHandler)
-	r.DELETE("/books/:id", handler.deleteBookHandler)
+	r.POST("/login", loginHandler)
+
+	protected := r.Group("/", authorizationMiddleware)
+
+	protected.GET("/books", handler.listBooksHandler)
+	protected.POST("/books", handler.createBookHandler)
+	protected.DELETE("/books/:id", handler.deleteBookHandler)
 
 	r.Run()
+}
+
+func loginHandler(c *gin.Context) {
+	// implement login logic here
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(5 * time.Minute).Unix(),
+	})
+
+	ss, err := token.SignedString([]byte("MySignature"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token": ss,
+	})
 }
 
 type Handler struct {
@@ -42,7 +69,36 @@ type Book struct {
 	Author string `json:"author"`
 }
 
+func validateToken(token string) error {
+	_, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+		return []byte("MySignature"), nil
+	})
+	return err
+}
+
+func authorizationMiddleware(c *gin.Context) {
+	s := c.Request.Header.Get("Authorization")
+
+	token := strings.TrimPrefix(s, "Bearer ")
+
+	if err := validateToken(token); err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+}
+
 func (h *Handler) listBooksHandler(c *gin.Context) {
+	s := c.Request.Header.Get("Authorization")
+
+	token := strings.TrimPrefix(s, "Bearer ")
+
+	if err := validateToken(token); err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 	var books []Book
 
 	if result := h.db.Find(&books); result.Error != nil {
@@ -55,6 +111,15 @@ func (h *Handler) listBooksHandler(c *gin.Context) {
 }
 
 func (h *Handler) createBookHandler(c *gin.Context) {
+	s := c.Request.Header.Get("Authorization")
+
+	token := strings.TrimPrefix(s, "Bearer ")
+
+	if err := validateToken(token); err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
 	var book Book
 
 	if err := c.ShouldBindJSON(&book); err != nil {
@@ -75,6 +140,15 @@ func (h *Handler) createBookHandler(c *gin.Context) {
 }
 
 func (h *Handler) deleteBookHandler(c *gin.Context) {
+	s := c.Request.Header.Get("Authorization")
+
+	token := strings.TrimPrefix(s, "Bearer ")
+
+	if err := validateToken(token); err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
 	id := c.Param("id")
 
 	if result := h.db.Delete(&Book{}, id); result.Error != nil {

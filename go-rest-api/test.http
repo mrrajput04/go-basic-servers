@@ -1,5 +1,9 @@
+### login
+POST http://localhost:8080/login
+
 ### get all books
 GET http://localhost:8080/books
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTEwMjQ0MDF9.yeadQ82QGVgrxiaqlPIx_1XNcQEJflYtYcdOafpJ-GQ
 
 ### create new book
 POST  http://localhost:8080/books
