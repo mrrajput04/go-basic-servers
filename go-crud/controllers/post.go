@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"crud/models"
+	"crud/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,24 +24,24 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
-	post := models.Post{Title: input.Title, Content: input.Content}
-	models.DB.Create(&post)
+	post := model.Post{Title: input.Title, Content: input.Content}
+	model.DB.Create(&post)
 
 	c.JSON(http.StatusOK, gin.H{"data": post})
 
 }
 
 func FindPosts(c *gin.Context) {
-	var posts []models.Post
-	models.DB.Find(&posts)
+	var posts []model.Post
+	model.DB.Find(&posts)
 	c.JSON(http.StatusOK, gin.H{"Data": posts})
 
 }
 
 func FindPost(c *gin.Context) {
-	var post models.Post
+	var post model.Post
 
-	if err := models.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
+	if err := model.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -50,8 +50,8 @@ func FindPost(c *gin.Context) {
 }
 
 func UpdatePost(c *gin.Context) {
-	var post models.Post
-	if err := models.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
+	var post model.Post
+	if err := model.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "post not found"})
 		return
 	}
@@ -63,19 +63,19 @@ func UpdatePost(c *gin.Context) {
 		return
 	}
 
-	updatePost := models.Post{Title: input.Title, Content: input.Content}
+	updatePost := model.Post{Title: input.Title, Content: input.Content}
 
-	models.DB.Model(&post).Updates(updatePost)
+	model.DB.Model(&post).Updates(updatePost)
 	c.JSON(http.StatusOK, gin.H{"data": post})
 
 }
 
 func DeletePost(c *gin.Context) {
-	var post models.Post
-	if err := models.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
+	var post model.Post
+	if err := model.DB.Where("id = ?", c.Param("id")).First(&post).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "post not found"})
 		return
 	}
-	models.DB.Delete(&post)
+	model.DB.Delete(&post)
 	c.JSON(http.StatusOK, gin.H{"Data": "Post deleted successfully"})
 }

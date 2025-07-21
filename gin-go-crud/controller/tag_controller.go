@@ -9,17 +9,21 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 type TagController struct {
 	tagService service.TagsService
 }
 
-func newTagController(service service.TagsService) *TagController {
-	return &TagController{tagService: service}
+func NewTagsController(service service.TagsService) *TagController {
+	return &TagController{
+		tagService: service,
+	}
 }
 
 func (controller *TagController) Create(ctx *gin.Context) {
+	log.Info().Msg("create tags")
 	createTagRequest := request.CreateTagsRequest{}
 	err := ctx.ShouldBindJSON(&createTagRequest)
 	helper.ErrorPanic(err)
@@ -36,6 +40,7 @@ func (controller *TagController) Create(ctx *gin.Context) {
 }
 
 func (controller *TagController) Update(ctx *gin.Context) {
+	log.Info().Msg("update tags")
 	updateTagRequest := request.UpdateTagsRequest{}
 	err := ctx.ShouldBindJSON(&updateTagRequest)
 	helper.ErrorPanic(err)
@@ -58,6 +63,7 @@ func (controller *TagController) Update(ctx *gin.Context) {
 }
 
 func (controller *TagController) Delete(ctx *gin.Context) {
+	log.Info().Msg("delete tags")
 	tagId := ctx.Param("tagId")
 	id, err := strconv.Atoi(tagId)
 	helper.ErrorPanic(err)
@@ -74,6 +80,7 @@ func (controller *TagController) Delete(ctx *gin.Context) {
 }
 
 func (controller *TagController) FindById(ctx *gin.Context) {
+	log.Info().Msg("get by id tags")
 	tagId := ctx.Param("tagId")
 	id, err := strconv.Atoi(tagId)
 	helper.ErrorPanic(err)
@@ -91,6 +98,7 @@ func (controller *TagController) FindById(ctx *gin.Context) {
 }
 
 func (controller *TagController) FindAll(ctx *gin.Context) {
+	log.Info().Msg("find all tags")
 	tagResponse := controller.tagService.FindAll()
 
 	webResponse := response.Response{

@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"gin-crud/models"
+	"gin-crud/model"
 )
 
 type TagsRepository interface {
-	Save(tags models.Tags)
-	Update(tags models.Tags)
+	Save(tags model.Tags)
+	Update(tags model.Tags)
 	Delete(tagsId int)
-	FindById(tagsId int) (tags models.Tags, err error)
-	FindAll() []models.Tags
+	FindById(tagsId int) (tags model.Tags, err error)
+	FindAll() []model.Tags
 }
