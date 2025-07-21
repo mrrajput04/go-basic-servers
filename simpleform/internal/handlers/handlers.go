@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"os"
-	"simpleform/internal/models"
+	"simpleform/internal/model"
 	"simpleform/internal/utils"
 	"time"
 
@@ -58,7 +58,7 @@ func AddUser(c *fiber.Ctx) error {
 	now := time.Now()
 
 	// Create a new user object with the provided data
-	newUser := models.User{
+	newUser := model.User{
 		ID:           primitive.NewObjectID(), // Generate a new MongoDB ObjectID
 		EmailAddress: email,                   // Set the email address
 		City:         city,                    // Set the city
@@ -147,7 +147,7 @@ func ReadOneUser(c *fiber.Ctx) error {
 	}
 
 	// Declare a variable to hold the user document
-	var user models.User
+	var user model.User
 	// Get the MongoDB database instance from the context
 	db := c.Locals("db").(*mongo.Database)
 

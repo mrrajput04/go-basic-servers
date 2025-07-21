@@ -3,7 +3,7 @@ package handlers
 import (
 	"go-todo-crud/auth"
 	"go-todo-crud/config"
-	"go-todo-crud/models"
+	"go-todo-crud/model"
 	"net/http"
 	"strings"
 
@@ -29,7 +29,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	user := models.User{Username: input.Username, Password: hashedPassword}
+	user := model.User{Username: input.Username, Password: hashedPassword}
 	if result := config.DB.Create(&user); result.Error != nil {
 		// Check for unique constraint error, which can be driver-specific.
 		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed") {
@@ -51,7 +51,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user model.User
 	if err := config.DB.Where("username = ?", input.Username).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return

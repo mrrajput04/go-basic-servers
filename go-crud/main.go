@@ -2,7 +2,7 @@ package main
 
 import (
 	"crud/controllers"
-	"crud/models"
+	"crud/model"
 
 	"github.com/gin-gonic/gin" // You need to run: go get -u github.com/gin-gonic/gin
 )
@@ -10,7 +10,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	models.ConnectDatabase()
+	model.ConnectDatabase()
 
 	router.POST("/posts", controllers.CreatePost)
 	router.GET("/posts", controllers.FindPosts)

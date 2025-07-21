@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"go-todo-crud/models"
+	"go-todo-crud/model"
 	"os"
 
 	"gorm.io/driver/sqlite"
@@ -22,7 +22,7 @@ func ConnectDatabase() {
 		panic("Failed to connect to database!")
 	}
 
-	if err := database.AutoMigrate(&models.User{}, &models.Todo{}); err != nil {
+	if err := database.AutoMigrate(&model.User{}, &model.Todo{}); err != nil {
 		panic("Failed to run migration: " + err.Error())
 	}
 	DB = database

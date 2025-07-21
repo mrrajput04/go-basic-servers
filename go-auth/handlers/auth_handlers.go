@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"go-auth/models"
+	"go-auth/model"
 	"go-auth/utils"
 	"net/http"
 
@@ -10,7 +10,7 @@ import (
 
 // Function for logging in
 func Login(c *gin.Context) {
-	var user models.User
+	var user model.User
 
 	// Check user credentials and generate a JWT token
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -36,7 +36,7 @@ func Login(c *gin.Context) {
 
 // Function for registering a new user (for demonstration purposes)
 func Register(c *gin.Context) {
-	var user models.User
+	var user model.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})

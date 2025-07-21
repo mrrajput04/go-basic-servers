@@ -4,7 +4,7 @@ import (
 	"gin-crud/data/request"
 	"gin-crud/data/response"
 	"gin-crud/helper"
-	"gin-crud/models"
+	"gin-crud/model"
 	"gin-crud/repository"
 
 	"github.com/go-playground/validator/v10"
@@ -25,7 +25,7 @@ func NewTagServiceImpl(tagRepository repository.TagsRepository, validate *valida
 func (t TagsServiceImpl) Create(tag request.CreateTagsRequest) {
 	err := t.Validate.Struct(tag)
 	helper.ErrorPanic(err)
-	tagModel := models.Tags{
+	tagModel := model.Tags{
 		Name: tag.Name,
 	}
 	t.TagsRepository.Save(tagModel)
