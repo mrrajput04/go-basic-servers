@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog/log"
+	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
@@ -37,14 +38,14 @@ func main() {
 	tagsController := controller.NewTagsController(tagsService)
 
 	r := gin.Default()
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	url := ginSwagger.URL("http://localhost:8080/swagger/swagger.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	//router
 	routes := router.NewRouter(tagsController)
 
 	server := &http.Server{
-		Addr:           ":8888",
+		Addr:           ":8080",
 		Handler:        routes,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func newRouter(tagController *controller.TagController) *gin.Engine {
+func NewRouter(tagController *controller.TagController) *gin.Engine {
 
 	r := gin.Default()
 

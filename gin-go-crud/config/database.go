@@ -11,9 +11,9 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "postgres"
+	user     = "myuser"
+	password = "mypassword123"
+	dbname   = "myapp"
 )
 
 func DatabaseConnection() *gorm.DB {
