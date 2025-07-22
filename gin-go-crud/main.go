@@ -2,6 +2,7 @@ package main
 
 import (
 	"gin-crud/config"
+	"gin-crud/controller"
 	"gin-crud/helper"
 	"gin-crud/model"
 	"gin-crud/repository"
@@ -10,8 +11,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog/log"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -32,6 +35,10 @@ func main() {
 
 	//init controller
 	tagsController := controller.NewTagsController(tagsService)
+
+	r := gin.Default()
+	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	//router
 	routes := router.NewRouter(tagsController)
