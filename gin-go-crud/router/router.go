@@ -5,30 +5,34 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter(tagController *controller.TagController) *gin.Engine {
 
-	r := gin.Default()
+	router := gin.Default()
+	// add swagger
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.GET("", func(ctx *gin.Context) {
+	router.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "Hello world")
 	})
 
-	r.NoRoute(func(ctx *gin.Context) {
+	router.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(404, gin.H{
 			"code":    "PAGE_NOT_FOUND",
 			"message": "Page not found",
 		})
 	})
 
-	router := r.Group("/api")
-	tagRouter := router.Group("/tag")
+	baseRouter := router.Group("/api")
+	tagRouter := baseRouter.Group("/tag")
 	tagRouter.GET("", tagController.FindAll)
 	tagRouter.GET("/:tagId", tagController.FindById)
 	tagRouter.POST("", tagController.Create)
 	tagRouter.PATCH("/:tagId", tagController.Update)
 	tagRouter.DELETE("/:tagId", tagController.Delete)
 
-	return r
+	return router
 }

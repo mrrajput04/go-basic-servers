@@ -1,12 +1,12 @@
 ### login
-POST http://localhost:8080/login
+POST http://localhost:8888/login
 
 ### get all books
-GET http://localhost:8080/books
+GET http://localhost:8888/books
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTEwMjQ0MDF9.yeadQ82QGVgrxiaqlPIx_1XNcQEJflYtYcdOafpJ-GQ
 
 ### create new book
-POST  http://localhost:8080/books
+POST  http://localhost:8888/books
 Content-Type: application/json
 
 {
@@ -16,4 +16,4 @@ Content-Type: application/json
 }
 
 ### delete a book
-DELETE  http://localhost:8080/books/4
+DELETE  http://localhost:8888/books/4

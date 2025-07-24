@@ -36,7 +36,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run() // listen and serve on 0.0.0.0:8888 (for windows "localhost:8888")
 	// -- snip --
 	r.GET("/people", getPeople)
 	r.POST("/people", postPeople)
