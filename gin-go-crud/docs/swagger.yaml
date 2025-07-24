@@ -17,7 +17,7 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:8080
+host: localhost:8888
 info:
   contact: {}
   description: A Tag service API in Go using Gin framework

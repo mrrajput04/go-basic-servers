@@ -14,6 +14,6 @@ func main() {
 	http.HandleFunc("/", handlers.AppHandler)
 
 	// Start the HTTP server and listen on port 8000
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8888", nil)
 
 }
